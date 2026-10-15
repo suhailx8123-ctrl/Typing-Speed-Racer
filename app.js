@@ -528,13 +528,18 @@ class TypingSpeedRacer {
   // ================= Event Listeners =================
   setupEventListeners() {
     // 1. Keyboard Input Handling
+    this.lastKeyDownTime = 0;
     window.addEventListener('keydown', (e) => this.handleGlobalKeyDown(e));
     window.addEventListener('keyup', (e) => this.handleGlobalKeyUp(e));
 
-    // Hidden input synchronization (especially for mobile tap-to-type)
+    // Hidden input synchronization (for mobile virtual keyboards)
     this.elements.typingInput.addEventListener('input', (e) => {
-      // In standard desktop browsers keydown handles typing cleanly.
-      // If mobile virtual keyboard triggers an input event:
+      // Ignore input event if keydown already processed this stroke within 80ms
+      if (performance.now() - this.lastKeyDownTime < 80) {
+        this.elements.typingInput.value = '';
+        return;
+      }
+
       if (e.inputType === 'insertText' && e.data) {
         this.processCharInput(e.data);
       } else if (e.inputType === 'deleteContentBackward') {
@@ -795,6 +800,7 @@ class TypingSpeedRacer {
     // Printable character handling
     if (e.key.length === 1) {
       e.preventDefault();
+      this.lastKeyDownTime = performance.now();
       this.processCharInput(e.key);
     }
   }
@@ -824,14 +830,23 @@ class TypingSpeedRacer {
 
   processCharInput(char) {
     if (this.isFinished) return;
-    this.startRaceIfPending();
 
     const targetChar = this.currentQuote.text[this.currentIndex];
     if (targetChar === undefined) return;
 
-    this.totalKeystrokes++;
+    // Case-tolerant matching so lowercase and uppercase both match accurately
+    const isMatch = (char === targetChar) || (char.toLowerCase() === targetChar.toLowerCase());
 
-    const isMatch = (char === targetChar);
+    // Strict start rule: Timer and bot start strictly on the first valid keystroke
+    if (!this.isActive) {
+      if (!isMatch) {
+        // Do not penalize or start race on invalid pre-race keystroke
+        return;
+      }
+      this.startRaceIfPending();
+    }
+
+    this.totalKeystrokes++;
     const currentSpan = this.charSpans[this.currentIndex];
 
     // Remove active cursor from current
