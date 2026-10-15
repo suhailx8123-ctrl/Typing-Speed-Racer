@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cyberpunk Typing Speed Racer - High-speed arcade typing game with live bot pacing, mechanical switch audio synthesis, and real-time WPM metrics.">
+  <meta name="theme-color" content="#0b0f19">
+  
+  <!-- Open Graph / Facebook / Discord Preview -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Typing Speed Racer | Cyberpunk Arcade">
+  <meta property="og:description" content="High-speed arcade typing game with live ghost bot pacing, mechanical switch audio synthesis, and real-time telemetry.">
+  
+  <!-- Twitter Card Preview -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Typing Speed Racer | Cyberpunk Arcade">
+  <meta name="twitter:description" content="High-speed arcade typing game with live ghost bot pacing, mechanical switch audio synthesis, and real-time telemetry.">
+
+  <title>Typing Speed Racer | Cyberpunk Arcade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient Cyberpunk Grid Background -->
+  <div class="cyber-grid-overlay" aria-hidden="true"></div>
+  <div class="cyber-glow-orb orb-1" aria-hidden="true"></div>
+  <div class="cyber-glow-orb orb-2" aria-hidden="true"></div>
+
+  <div class="app-wrapper">
+    <!-- Header Section -->
+    <header class="app-header">
+      <div class="brand-container">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <div class="brand-titles">
+          <h1 class="glitch-title" data-text="TYPING SPEED RACER">TYPING SPEED RACER</h1>
+          <span class="brand-subtitle">CYBERPUNK NEON CIRCUIT &bull; ES6 MOTORSPORTS</span>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="header-actions">
+        <!-- Sound Toggle -->
+        <button id="sound-toggle-btn" class="cyber-btn icon-btn" title="Toggle Sound Effects (Mute / Unmute)" aria-label="Toggle Sound Effects">
+          <svg id="sound-icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg id="sound-icon-off" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+          <span class="btn-tooltip">Sound: <strong id="sound-status-text">ON</strong></span>
+        </button>
+
+        <!-- Leaderboard / History Button -->
+        <button id="history-modal-btn" class="cyber-btn icon-btn" title="View Recent Races & High Scores" aria-label="View Race History">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="7"></circle>
+            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+          </svg>
+          <span class="btn-tooltip">Race Log</span>
+        </button>
+
+        <!-- Quick Restart Button -->
+        <button id="quick-restart-btn" class="cyber-btn primary-btn" title="Restart Race (Shortcut: Tab + Enter)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+          <span>RESTART <kbd>Tab+Enter</kbd></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Configuration Bar (Modes & Bot Pacing) -->
+    <nav class="config-bar" aria-label="Game Configuration">
+      <!-- Game Mode Selector -->
+      <div class="config-group">
+        <span class="config-label">RACE MODE</span>
+        <div class="pill-selector" id="mode-selector" role="radiogroup" aria-label="Race Mode">
+          <button type="button" class="pill-btn active" data-mode="passage" role="radio" aria-checked="true">
+            <span class="pill-dot"></span>Passage
+          </button>
+          <button type="button" class="pill-btn" data-mode="15" role="radio" aria-checked="false">
+            <span class="pill-dot"></span>15s
+          </button>
+          <button type="button" class="pill-btn" data-mode="30" role="radio" aria-checked="false">
+            <span class="pill-dot"></span>30s
+          </button>
+          <button type="button" class="pill-btn" data-mode="60" role="radio" aria-checked="false">
+            <span class="pill-dot"></span>60s
+          </button>
+        </div>
+      </div>
+
+      <!-- Bot Speed Selector -->
+      <div class="config-group">
+        <span class="config-label">CYBER GHOST SPEED</span>
+        <div class="pill-selector" id="bot-speed-selector" role="radiogroup" aria-label="Ghost Bot Speed">
+          <button type="button" class="pill-btn" data-speed="40" role="radio" aria-checked="false">
+            40 WPM <span class="difficulty-tag">ROOKIE</span>
+          </button>
+          <button type="button" class="pill-btn active" data-speed="60" role="radio" aria-checked="true">
+            60 WPM <span class="difficulty-tag">PRO</span>
+          </button>
+          <button type="button" class="pill-btn" data-speed="80" role="radio" aria-checked="false">
+            80 WPM <span class="difficulty-tag">ELITE</span>
+          </button>
+          <button type="button" class="pill-btn" data-speed="100" role="radio" aria-checked="false">
+            100 WPM <span class="difficulty-tag">DEMON</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Visual Race Track Section -->
+    <section class="race-track-section" aria-label="Live Race Track">
+      <div class="track-header">
+        <div class="track-status-pill" id="track-status-pill">
+          <span class="status-indicator-light"></span>
+          <span id="track-status-text">GRID READY &bull; TYPE FIRST CHAR TO ACCELERATE</span>
+        </div>
+        <div class="track-telemetry">
+          <span class="telemetry-item">RACER DISTANCE: <strong id="player-progress-pct">0%</strong></span>
+          <span class="telemetry-separator">|</span>
+          <span class="telemetry-item">GHOST DISTANCE: <strong id="bot-progress-pct">0%</strong></span>
+        </div>
+      </div>
+
+      <div class="track-canvas-container" id="race-track-container">
+        <!-- Start Line Marker -->
+        <div class="track-line start-line">
+          <span class="line-label">START</span>
+        </div>
+
+        <!-- 25%, 50%, 75% Distance Hash Marks -->
+        <div class="distance-hash hash-25" data-dist="25%"></div>
+        <div class="distance-hash hash-50" data-dist="50%"></div>
+        <div class="distance-hash hash-75" data-dist="75%"></div>
+
+        <!-- Finish Line (Checkered Pattern) -->
+        <div class="track-line finish-line">
+          <div class="checkered-pattern"></div>
+          <span class="line-label finish-label">FINISH</span>
+        </div>
+
+        <!-- Lane 1: Player (Neon Green) -->
+        <div class="race-lane player-lane" id="player-lane">
+          <div class="lane-backdrop">
+            <span class="lane-title">LANE 1 &bull; PILOT [YOU]</span>
+          </div>
+          <!-- Player Car Node -->
+          <div class="racer-node player-car" id="player-car" style="transform: translateX(0%);">
+            <div class="car-badge player-badge">
+              <span class="badge-role">YOU</span>
+              <span class="badge-speed" id="player-badge-wpm">0 WPM</span>
+            </div>
+            <!-- Neon Green Futuristic Hypercar SVG -->
+            <div class="car-svg-wrap player-svg-wrap">
+              <svg viewBox="0 0 120 44" class="car-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Underglow Filter/Shadow handled by CSS -->
+                <!-- Aero Wing & Fin -->
+                <path d="M12 8 L32 8 L28 16 L8 16 Z" fill="#00ff88" opacity="0.9"/>
+                <path d="M4 14 L14 14 L12 24 L2 24 Z" fill="#00cc6a"/>
+                <!-- Cockpit / Canopy Glass -->
+                <path d="M48 10 L76 10 L90 20 L40 20 Z" fill="#002b1b" stroke="#00ff88" stroke-width="1.5"/>
+                <path d="M54 12 L72 12 L82 19 L46 19 Z" fill="#00ff88" opacity="0.3"/>
+                <!-- Main Body Chasis -->
+                <path d="M10 24 L28 14 L88 14 L114 26 L118 31 L110 33 L10 33 Z" fill="#0d1f18" stroke="#00ff88" stroke-width="1.8"/>
+                <!-- Neon Circuit Accents -->
+                <line x1="26" y1="23" x2="84" y2="23" stroke="#00ff88" stroke-width="2" stroke-linecap="round"/>
+                <line x1="88" y1="23" x2="108" y2="28" stroke="#00ff88" stroke-width="2.5" stroke-linecap="round"/>
+                <!-- Headlight Laser Beam -->
+                <polygon points="112,28 119,30 112,32" fill="#55ffb0"/>
+                <!-- Wheels (Cyber Mag Rims) -->
+                <circle cx="28" cy="33" r="8.5" fill="#060c09" stroke="#00ff88" stroke-width="2"/>
+                <circle cx="28" cy="33" r="3.5" fill="#00ff88"/>
+                <circle cx="92" cy="33" r="8.5" fill="#060c09" stroke="#00ff88" stroke-width="2"/>
+                <circle cx="92" cy="33" r="3.5" fill="#00ff88"/>
+                <!-- Nitro Thruster Flame -->
+                <polygon class="nitro-flame" points="2,26 8,24 8,28" fill="#00ff88"/>
+              </svg>
+            </div>
+            <!-- Car Trail Particle Emitter -->
+            <div class="speed-trail player-trail"></div>
+          </div>
+        </div>
+
+        <!-- Lane 2: Cyber Ghost Bot (Electric Blue) -->
+        <div class="race-lane bot-lane" id="bot-lane">
+          <div class="lane-backdrop">
+            <span class="lane-title">LANE 2 &bull; GHOST AI [TARGET PACE]</span>
+          </div>
+          <!-- Bot Car Node -->
+          <div class="racer-node bot-car" id="bot-car" style="transform: translateX(0%);">
+            <div class="car-badge bot-badge">
+              <span class="badge-role">BOT</span>
+              <span class="badge-speed" id="bot-badge-wpm">60 WPM</span>
+            </div>
+            <!-- Electric Blue Futuristic Speeder SVG -->
+            <div class="car-svg-wrap bot-svg-wrap">
+              <svg viewBox="0 0 120 44" class="car-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Aero Wing & Fin -->
+                <path d="M12 8 L32 8 L28 16 L8 16 Z" fill="#00d4ff" opacity="0.9"/>
+                <path d="M4 14 L14 14 L12 24 L2 24 Z" fill="#0099cc"/>
+                <!-- Cockpit / Canopy Glass -->
+                <path d="M48 10 L76 10 L90 20 L40 20 Z" fill="#051c2c" stroke="#00d4ff" stroke-width="1.5"/>
+                <path d="M54 12 L72 12 L82 19 L46 19 Z" fill="#00d4ff" opacity="0.3"/>
+                <!-- Main Body Chasis -->
+                <path d="M10 24 L28 14 L88 14 L114 26 L118 31 L110 33 L10 33 Z" fill="#0a1926" stroke="#00d4ff" stroke-width="1.8"/>
+                <!-- Electric Cyan Accents -->
+                <line x1="26" y1="23" x2="84" y2="23" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/>
+                <line x1="88" y1="23" x2="108" y2="28" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+                <!-- Headlight Laser Beam -->
+                <polygon points="112,28 119,30 112,32" fill="#7fe5ff"/>
+                <!-- Wheels (Cyber Mag Rims) -->
+                <circle cx="28" cy="33" r="8.5" fill="#040b12" stroke="#00d4ff" stroke-width="2"/>
+                <circle cx="28" cy="33" r="3.5" fill="#00d4ff"/>
+                <circle cx="92" cy="33" r="8.5" fill="#040b12" stroke="#00d4ff" stroke-width="2"/>
+                <circle cx="92" cy="33" r="3.5" fill="#00d4ff"/>
+                <!-- Nitro Thruster Flame -->
+                <polygon class="nitro-flame" points="2,26 8,24 8,28" fill="#00d4ff"/>
+              </svg>
+            </div>
+            <!-- Car Trail Particle Emitter -->
+            <div class="speed-trail bot-trail"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live Telemetry HUD -->
+    <section class="telemetry-hud" aria-label="Real-time Metrics">
+      <!-- Speed WPM Metric Card -->
+      <div class="metric-card speed-card">
+        <div class="metric-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+          </svg>
+        </div>
+        <div class="metric-body">
+          <span class="metric-label">NET SPEED</span>
+          <div class="metric-value-wrap">
+            <span class="metric-number" id="hud-wpm">0</span>
+            <span class="metric-unit">WPM</span>
+          </div>
+        </div>
+        <div class="metric-bar-bg">
+          <div class="metric-bar-fill wpm-fill" id="hud-wpm-bar" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- Accuracy Metric Card -->
+      <div class="metric-card accuracy-card">
+        <div class="metric-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="6"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+          </svg>
+        </div>
+        <div class="metric-body">
+          <span class="metric-label">ACCURACY</span>
+          <div class="metric-value-wrap">
+            <span class="metric-number" id="hud-accuracy">100</span>
+            <span class="metric-unit">%</span>
+          </div>
+        </div>
+        <div class="metric-bar-bg">
+          <div class="metric-bar-fill acc-fill" id="hud-acc-bar" style="width: 100%;"></div>
+        </div>
+      </div>
+
+      <!-- Timer / Elapsed Card -->
+      <div class="metric-card timer-card">
+        <div class="metric-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="metric-body">
+          <span class="metric-label" id="hud-timer-label">TIME ELAPSED</span>
+          <div class="metric-value-wrap">
+            <span class="metric-number" id="hud-timer">0.0</span>
+            <span class="metric-unit">s</span>
+          </div>
+        </div>
+        <div class="metric-bar-bg">
+          <div class="metric-bar-fill timer-fill" id="hud-timer-bar" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- Current Streak / Combo Card -->
+      <div class="metric-card streak-card">
+        <div class="metric-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3.5z"></path>
+          </svg>
+        </div>
+        <div class="metric-body">
+          <span class="metric-label">STREAK / ERRORS</span>
+          <div class="metric-value-wrap">
+            <span class="metric-number" id="hud-streak">0</span>
+            <span class="metric-unit" id="hud-errors-label">(0 err)</span>
+          </div>
+        </div>
+        <div class="metric-bar-bg">
+          <div class="metric-bar-fill streak-fill" id="hud-streak-bar" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- Personal Best Card -->
+      <div class="metric-card best-card">
+        <div class="metric-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+        <div class="metric-body">
+          <span class="metric-label">PERSONAL BEST</span>
+          <div class="metric-value-wrap">
+            <span class="metric-number" id="hud-best-wpm">0</span>
+            <span class="metric-unit">WPM</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Typing Arena Section -->
+    <main class="typing-arena-section">
+      <div class="arena-card" id="arena-card">
+        <!-- Visual Focus & Status Header -->
+        <div class="arena-header">
+          <div class="arena-status-badge" id="arena-focus-status">
+            <span class="focus-pulse"></span>
+            <span id="arena-focus-text">ARENA ACTIVE &bull; TYPE FREELY</span>
+          </div>
+          <div class="arena-passage-meta" id="passage-meta">
+            <span id="quote-category">CATEGORY: SCI-FI / CODE</span>
+            <span class="meta-dot">&bull;</span>
+            <span id="quote-author">SYNAPSE TERMINAL</span>
+          </div>
+          <div class="arena-controls-hint">
+            <span class="hint-text"><kbd>Tab</kbd>+<kbd>Enter</kbd> to Quick Restart</span>
+          </div>
+        </div>
+
+        <!-- Hidden input for mobile keyboard triggering & seamless accessibility -->
+        <input 
+          type="text" 
+          id="typing-input" 
+          class="visually-hidden-input" 
+          autocomplete="off" 
+          autocorrect="off" 
+          autocapitalize="off" 
+          spellcheck="false" 
+          aria-label="Typing input stream"
+        />
+
+        <!-- Typing Passage Display Area -->
+        <div class="passage-display-box" id="passage-container" tabindex="0" role="textbox" aria-readonly="true" aria-label="Target text passage">
+          <!-- Spans for each character will be dynamically populated by app.js -->
+        </div>
+
+        <!-- Arena Footer Prompt -->
+        <div class="arena-footer">
+          <div class="arena-footer-left">
+            <span class="key-indicator">CHARACTERS: <strong id="char-progress-counter">0 / 0</strong></span>
+            <span class="key-divider">&bull;</span>
+            <span class="key-indicator">RAW CPM: <strong id="raw-cpm-counter">0</strong></span>
+          </div>
+          <div class="arena-footer-right">
+            <span class="hint-caps-lock hidden" id="caps-lock-warning">&#9888; CAPS LOCK IS ON</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer Information -->
+    <footer class="app-footer">
+      <p class="footer-text">
+        Pure HTML5, Vanilla CSS3 &amp; ES6 JavaScript &bull; Web Audio API Synthesizer Engine &bull; Zero External Dependencies
+      </p>
+    </footer>
+  </div>
+
+  <!-- Post-Race Results Modal -->
+  <div class="modal-overlay hidden" id="results-modal" role="dialog" aria-modal="true" aria-labelledby="modal-result-title">
+    <div class="cyber-modal">
+      <div class="modal-header">
+        <div class="modal-banner" id="modal-banner-pill">
+          <span id="modal-result-badge">VICTORY</span>
+        </div>
+        <h2 id="modal-result-title" class="modal-title">PILOT CROSSES FINISH FIRST!</h2>
+        <p id="modal-result-subtitle" class="modal-subtitle">You outpaced the cyber ghost bot at 60 WPM.</p>
+      </div>
+
+      <!-- High Score Alert Banner (hidden by default) -->
+      <div class="high-score-banner hidden" id="new-high-score-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        </svg>
+        <span>NEW ALL-TIME RECORD SPEED UNLOCKED!</span>
+      </div>
+
+      <!-- Modal Core Stats Grid -->
+      <div class="modal-stats-grid">
+        <div class="modal-stat-box primary-glow">
+          <span class="stat-box-title">FINAL WPM</span>
+          <span class="stat-box-value" id="modal-wpm">0</span>
+          <span class="stat-box-sub" id="modal-raw-wpm">0 Raw WPM</span>
+        </div>
+        <div class="modal-stat-box">
+          <span class="stat-box-title">ACCURACY</span>
+          <span class="stat-box-value" id="modal-accuracy">100%</span>
+          <span class="stat-box-sub" id="modal-error-count">0 Mistakes</span>
+        </div>
+        <div class="modal-stat-box">
+          <span class="stat-box-title">RACE TIME</span>
+          <span class="stat-box-value" id="modal-time">0.0s</span>
+          <span class="stat-box-sub" id="modal-mode-label">Passage Mode</span>
+        </div>
+        <div class="modal-stat-box">
+          <span class="stat-box-title">VS GHOST BOT</span>
+          <span class="stat-box-value" id="modal-ghost-wpm">60 WPM</span>
+          <span class="stat-box-sub" id="modal-margin-label">+0 WPM Ahead</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="modal-actions">
+        <button id="modal-restart-btn" class="cyber-btn primary-btn large-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+          <span>RACE AGAIN <kbd>Tab+Enter</kbd></span>
+        </button>
+        <button id="modal-close-btn" class="cyber-btn secondary-btn">
+          <span>CLOSE <kbd>Esc</kbd></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Race History / Leaderboard Drawer Modal -->
+  <div class="modal-overlay hidden" id="history-modal" role="dialog" aria-modal="true" aria-labelledby="history-modal-title">
+    <div class="cyber-modal history-modal-content">
+      <div class="modal-header">
+        <h2 id="history-modal-title" class="modal-title">PILOT RACE LOG &amp; RECORDS</h2>
+        <p class="modal-subtitle">High scores and performance stats saved to local storage.</p>
+      </div>
+
+      <div class="history-summary-row">
+        <div class="summary-pill">
+          <span>TOTAL RACES:</span> <strong id="hist-total-races">0</strong>
+        </div>
+        <div class="summary-pill">
+          <span>ALL-TIME BEST:</span> <strong id="hist-best-wpm">0 WPM</strong>
+        </div>
+        <div class="summary-pill">
+          <span>AVG ACCURACY:</span> <strong id="hist-avg-acc">100%</strong>
+        </div>
+        <button id="clear-history-btn" class="text-danger-btn" title="Clear all saved races">
+          Reset All Logs
+        </button>
+      </div>
+
+      <div class="history-table-container">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>DATE</th>
+              <th>MODE</th>
+              <th>SPEED</th>
+              <th>ACCURACY</th>
+              <th>BOT PACE</th>
+              <th>RESULT</th>
+            </tr>
+          </thead>
+          <tbody id="history-table-body">
+            <!-- Populated via app.js -->
+          </tbody>
+        </table>
+        <div id="history-empty-message" class="history-empty hidden">
+          No race logs recorded yet. Complete a race to see your analytics here!
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="history-close-btn" class="cyber-btn secondary-btn large-btn">
+          <span>BACK TO COCKPIT</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Core Game Script -->
+  <script src="app.js"></script>
+</body>
+</html>

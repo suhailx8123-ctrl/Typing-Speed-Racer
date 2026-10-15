@@ -1,0 +1,15 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# IDE & Editor Directories
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Local test logs
+*.log
